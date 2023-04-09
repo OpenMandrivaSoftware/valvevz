@@ -21,7 +21,7 @@ struct Header {
 struct Footer {
 	constexpr explicit operator bool() const { return magic == expectedMagic; };
 
-	std::array< uint8_t, 4 > crc;
+	uint32_t crc;
 	uint32_t size;
 	std::array< char, 2 > magic;
 

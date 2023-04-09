@@ -6,6 +6,8 @@
 #include <cstring>
 #include <vector>
 
+#include <7zCrc.h>
+
 int main(int argc, char **argv) {
 	if (argc != 4 || strcmp(argv[1], "--decompress") != 0) {
 		printf("Usage: valvevz --decompress <in> <out>\n");
@@ -62,14 +64,21 @@ int main(int argc, char **argv) {
 		return 9;
 	}
 
+	CrcGenerateTable();
+
+	if (CrcCalc(data.data(), data.size()) != footer.crc) {
+		printf("Unmatching CRC!\n");
+		return 10;
+	}
+
 	File outFile(argv[3], true);
 	if (!outFile) {
-		return 10;
+		return 11;
 	}
 
 	if (outFile.write(data.data(), data.size()) != data.size()) {
 		printf("Failed to write data to file!\n");
-		return 11;
+		return 12;
 	}
 
 	return 0;
