@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.14)
 
 project(valvevz)
 
-set(LZMA_SDK_PATH "3rdparty/lzma")
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_subdirectory("3rdparty/lzma")
 
 add_executable(valvevz
 	"main.cpp"
@@ -17,14 +17,11 @@ add_executable(valvevz
 	"LZMA.hpp"
 
 	"VZ.hpp"
-
-	"${LZMA_SDK_PATH}/LzmaDec.c"
-	"${LZMA_SDK_PATH}/LzmaDec.h"
 )
 
-target_include_directories(valvevz
+target_link_libraries(valvevz
 	PRIVATE
-		${LZMA_SDK_PATH}
+		lzma
 )
 
 install(
