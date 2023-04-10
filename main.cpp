@@ -2,15 +2,22 @@
 #include "LZMA.hpp"
 #include "VZ.hpp"
 
-#include <cstdio>
 #include <cstring>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <vector>
 
 #include <7zCrc.h>
 
+static void printTimestamp(const std::time_t timestamp) {
+	const std::tm *tmp = std::gmtime(&timestamp);
+	std::cout << "Timestamp: " << std::put_time(tmp, "%F %T") << std::endl;
+}
+
 int main(int argc, char **argv) {
 	if (argc != 4 || strcmp(argv[1], "--decompress") != 0) {
-		printf("Usage: valvevz --decompress <in> <out>\n");
+		std::cout << "Usage: valvevz --decompress <in> <out>" << std::endl;
 		return -1;
 	}
 
@@ -27,12 +34,12 @@ int main(int argc, char **argv) {
 
 	vz::Footer footer;
 	if (inFile.read(&footer, sizeof(footer)) != sizeof(footer)) {
-		printf("Failed to read footer!\n");
+		std::cout << "Failed to read footer!" << std::endl;
 		return 3;
 	}
 
 	if (!footer) {
-		printf("Invalid footer!\n");
+		std::cout << "Invalid footer!" << std::endl;
 		return 4;
 	}
 
@@ -42,32 +49,34 @@ int main(int argc, char **argv) {
 
 	vz::Header header;
 	if (inFile.read(&header, sizeof(header)) != sizeof(header)) {
-		printf("Failed to read header!\n");
+		std::cout << "Failed to read header!" << std::endl;
 		return 6;
 	}
 
 	if (!header) {
-		printf("Invalid header!\n");
+		std::cout << "Invalid header!" << std::endl;
 		return 7;
 	}
 
+	printTimestamp(header.timestamp);
+
 	std::vector< uint8_t > lzma(lzmaSize);
 	if (inFile.read(lzma.data(), lzma.size()) != lzma.size()) {
-		printf("Failed to read LZMA data!\n");
+		std::cout << "Failed to read LZMA data!" << std::endl;
 		return 8;
 	}
 
 	std::vector< uint8_t > data(footer.size);
 
 	if (!lzma::decompress(data.data(), data.size(), lzma.data(), lzma.size())) {
-		printf("Failed to uncompress LZMA data!\n");
+		std::cout << "Failed to uncompress LZMA data!" << std::endl;
 		return 9;
 	}
 
 	CrcGenerateTable();
 
 	if (CrcCalc(data.data(), data.size()) != footer.crc) {
-		printf("Unmatching CRC!\n");
+		std::cout << "Unmatching CRC!" << std::endl;
 		return 10;
 	}
 
@@ -77,7 +86,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (outFile.write(data.data(), data.size()) != data.size()) {
-		printf("Failed to write data to file!\n");
+		std::cout << "Failed to write data to file!" << std::endl;
 		return 12;
 	}
 
