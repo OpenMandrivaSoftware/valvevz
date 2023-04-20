@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace vz {
 #pragma pack(push, 1)
 struct Header {
-	constexpr explicit operator bool() const { return magic == expectedMagic  && rev == expectedRev; };
+	explicit operator bool() const { return magic == expectedMagic  && rev == expectedRev; };
 
 	std::array< char, 2 > magic;
 	char rev;
@@ -36,7 +36,7 @@ struct Header {
 
 #pragma pack(push, 2)
 struct Footer {
-	constexpr explicit operator bool() const { return magic == expectedMagic; };
+	explicit operator bool() const { return magic == expectedMagic; };
 
 	uint32_t crc;
 	uint32_t size;
